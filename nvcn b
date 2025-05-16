@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ametisoovitusmäng</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .category {
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .category.selected {
+      background-color: #f0f0f0;
+      border-color: #000;
+    }
+    .button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ametisoovitusmäng</h1>
+  <p>
+    Vali allolevatest huvidest ja oskustest oma huvid ja oskused (vajalik on
+    valida vähemalt kaks). Seejärel kliki nuppu "Kuvada ameti soovitus", et teada saada, milline amet võiks sinu jaoks sobida!
+  </p>
+  <div class="categories">
+    <!-- Categories will be dynamically inserted here -->
+  </div>
+  <button onclick="showRecommendation()" class="button">Kuvada ameti soovitus</button>
+  <h2>Tulemus:</h2>
+  <div class="result"></div>
+
+  <script>
+    const categories = [
+      { name: "Programmeerimine", professions: ["Tarkvaraarendaja", "Web-arendaja", "Süsteemianalüütik", "Programmeerimiskoolitaja", "IT projektijuht", "Mobiilirakenduste arendaja", "DevOps insener", "Tehisintellekti arendaja", "Mänguarendaja", "Pilveteenuste insener"] },
+      { name: "Andmeanalüüs", professions: ["Andmeanalüütik", "Andmebaasiadministraator", "Ärianalüütik", "Statistiku konsultant", "Marketingi analüütik", "Masinõppe spetsialist", "Big Data arhitekt", "BI spetsialist", "Kvantitatiivanalüütik", "Teadusandmete töötleja"] },
+      { name: "Finantsanalüüs", professions: ["Finantsanalüütik", "Raamatupidaja", "Investeerimisnõustaja", "Riskianalüütik", "Ärivõimaluste analüütik", "Kontroller", "Pangandusnõustaja", "Maksukonsultant", "Kindlustusanalüütik", "Portfellihaldur"] },
+      // ... (more categories truncated for brevity)
+    ];
+
+    const selectedCategories = [];
+
+    function toggleCategory(categoryName) {
+      const index = selectedCategories.indexOf(categoryName);
+      if (index === -1) {
+        selectedCategories.push(categoryName);
+      } else {
+        selectedCategories.splice(index, 1);
+      }
+      renderCategories();
+    }
+
+    function renderCategories() {
+      const categoriesContainer = document.querySelector('.categories');
+      categoriesContainer.innerHTML = '';
+      categories.forEach(category => {
+        const categoryElement = document.createElement('div');
+        categoryElement.className = 'category' + (selectedCategories.includes(category.name) ? ' selected' : '');
+        categoryElement.innerText = category.name;
+        categoryElement.onclick = () => toggleCategory(category.name);
+        categoriesContainer.appendChild(categoryElement);
+      });
+    }
+
+    function showRecommendation() {
+      if (selectedCategories.length < 2) {
+        document.querySelector('.result').innerText = 'Palun vali vähemalt kaks kategooriat!';
+        return;
+      }
+      const recommendations = [];
+      selectedCategories.forEach(categoryName => {
+        const category = categories.find(cat => cat.name === categoryName);
+        const randomProfession = category.professions[Math.floor(Math.random() * category.professions.length)];
+        recommendations.push(randomProfession);
+      });
+      document.querySelector('.result').innerHTML = 'Sinu ametisoovitused:<br>' + recommendations.join('<br>');
+    }
+
+    document.addEventListener('DOMContentLoaded', renderCategories);
+  </script>
+</body>
+</html>
