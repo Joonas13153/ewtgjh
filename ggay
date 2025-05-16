@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ametisoovitusmäng</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .category {
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .category.selected {
+            background-color: #f0f0f0;
+            border-color: #000;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ametisoovitusmäng</h1>
+    <p>
+        Vali allolevatest huvidest ja oskustest oma huvid ja oskused (vajalik on
+        valida vähemalt kaks). Seejärel kliki nuppu "Kuvada ameti soovitus", et teada saada, milline amet võiks sinu jaoks sobida!
+    </p>
+
+    <div class="categories">
+        <!-- Categories will be dynamically inserted here -->
+    </div>
+
+    <button onclick="showRecommendation()" class="button">Kuvada ameti soovitus</button>
+
+    <h2>Tulemus:</h2>
+    <div class="result"></div>
+
+    <script>
+        const categories = [
+            { name: "Programmeerimine", professions: ["Tarkvaraarendaja", "Web-arendaja", "Süsteemianalüütik", "Programmeerimiskoolitaja", "IT projektijuht", "Mobiilirakenduste arendaja", "DevOps insener", "Tehisintellekti arendaja", "Mänguarendaja", "Pilveteenuste insener"] },
+            { name: "Andmeanalüüs", professions: ["Andmeanalüütik", "Andmebaasiadministraator", "Ärianalüütik", "Statistiku konsultant", "Marketingi analüütik", "Masinõppe spetsialist", "Big Data arhitekt", "BI spetsialist", "Kvantitatiivanalüütik", "Teadusandmete töötleja"] },
+            { name: "Finantsanalüüs", professions: ["Finantsanalüütik", "Raamatupidaja", "Investeerimisnõustaja", "Riskianalüütik", "Ärivõimaluste analüütik", "Kontroller", "Pangandusnõustaja", "Maksukonsultant", "Kindlustusanalüütik", "Portfellihaldur"] },
+            { name: "Projektijuhtimine", professions: ["Projektijuht", "Operatsioonide juht", "Teenuste juht", "Ehituse projektijuht", "IT projektijuht", "Tootearenduse juht", "Agile coach", "Äriarendusjuht", "Kvaliteedijuht", "Turundusprojektide juht"] },
+            { name: "Suhtlemisoskus", professions: ["Suhtluspetsialist", "Suhtlusjuhendaja", "Meediakoolitaja", "Müügijuht", "Klienditeenindaja", "Avalike suhete spetsialist", "Konverentsikorraldaja", "Turunduskoordinaator", "Reklaamiagent", "Personalispetsialist"] },
+            { name: "Teenindusoskus", professions: ["Klienditeenindaja", "Kliendihooldusspetsialist", "Teenindusjuht", "Kohvikupidaja", "Teeninduskoordinaator", "Hotellijuht", "Restoranijuht", "Turvajuht", "Salongiteenindaja", "Spaaspetsialist"] },
+            { name: "Tõlkimine", professions: ["Tõlkija", "Keeletoimetaja", "Subtiitrivõltsi spetsialist", "Keelekoolitaja", "Õigusõiguste tõlkija", "Simultaan-tõlkija", "Tehniliste tekstide tõlkija", "Kirjalik tõlk", "Terminoloog", "Rahvusvahelise suhtluse koordinaator"] },
+            { name: "Loodusteadused", professions: ["Bioloog", "Zooloog", "Geoloog", "Arheoloog", "Ajaloolane"] },
+            { name: "Kunst ja disain", professions: ["Kunstnik", "Graafiline disainer", "Moedisainer", "Illustraator", "Skulptor"] },
+            { name: "Käsitöö ja tootmine", professions: ["Pagar", "Kokk", "Rätsep", "Sepp", "Mööblimeister"] },
+            { name: "Tervis ja hooldus", professions: ["Füsioterapeut", "Psühholoog", "Logopeed", "Õde", "Hambatehnik"] },
+            { name: "Sport ja treening", professions: ["Treener", "Füüsiline ettevalmistaja", "Toitumisnõustaja", "Joogaõpetaja", "Sportlane"] },
+            { name: "Inseneeria", professions: ["Mehaanikainsener", "Elektrik", "Masinaehitaja", "Konstruktor", "Tööstusdisainer"] },
+            { name: "Haridus", professions: ["Lasteaiaõpetaja", "Eripedagoog", "Õppejuht", "Keeleõpetaja", "Ainekonsultant"] },
+            { name: "Meedia ja looming", professions: ["Videograaf", "Filmimontaažispetsialist", "Helirežissöör", "Lavastaja", "Näitleja"] },
+            { name: "Sotsiaal ja kogukond", professions: ["Sotsiaaltöötaja", "Noorsootöötaja", "Kogukonnajuht", "Vaimulik", "Rahvusvaheline vabatahtlik"] },
+            { name: "Ehitus ja kinnisvara", professions: ["Müürsepp", "Torumees", "Siseviimistluse spetsialist", "Kinnisvarahindaja", "Logistikajuht"] },
+            { name: "Muusika", professions: ["Muusik", "Helilooja", "Laulja", "Instrumentalist", "Muusikaõpetaja"] },
+            { name: "Kirjandus", professions: ["Kirjanik", "Toimetaja", "Korrektor", "Kirjastaja", "Raamatukoguhoidja"] },
+            { name: "Tehnoloogia", professions: ["Tehnoloogiaekspert", "IT konsultant", "Süsteemiadministraator", "Tehniline tugi", "IT turvaspetsialist"] },
+            { name: "Müük", professions: ["Müügikonsultant", "Müügijuht", "Müügianalüütik", "Müügikoolitaja", "Müügikoordinaator"] },
+            { name: "Turundus", professions: ["Turundusspetsialist", "Turundusjuht", "Turundusanalüütik", "Turunduskonsultant", "Turunduskoordinaator"] },
+            { name: "Logistika", professions: ["Logistik", "Transpordijuht", "Laokoordinaator", "Tarneahela juht", "Logistika analüütik"] },
+            { name: "Tootmine", professions: ["Tootmisjuht", "Tootmisinsener", "Tootmiskoordinaator", "Tootmiskvaliteedi spetsialist", "Tootmisplaneerija"] },
+            { name: "Kinnisvara", professions: ["Kinnisvaramaakler", "Kinnisvarahaldur", "Kinnisvaraarendaja", "Kinnisvarainvestor", "Kinnisvarakonsultant"] },
+            { name: "Õigus", professions: ["Jurist", "Advokaat", "Notar", "Õiguskonsultant", "Õigusnõustaja"] },
+            { name: "Meditsiin", professions: ["Arst", "Õde", "Hambaarst", "Apteeker", "Meditsiiniõde"] },
+            { name: "Psühholoogia", professions: ["Psühholoog", "Psühhiaater", "Nõustaja", "Teraapiaekspert", "Kliiniline psühholoog"] },
+            { name: "Teadus", professions: ["Teadur", "Laborant", "Teadusanalüütik", "Teaduskonsultant", "Teadusprojektide juht"] },
+            { name: "Põllumajandus", professions: ["Põllumajandustootja", "Agraarspetsialist", "Põllumajanduskonsultant", "Põllumajandusinsener", "Põllumajandusjuht"] },
+            { name: "Keskkond", professions: ["Keskkonnaspetsialist", "Keskkonnakonsultant", "Keskkonnainsener", "Keskkonnajuht", "Keskkonnaanalüütik"] },
+            { name: "Energeetika", professions: ["Energeetik", "Energiainsener", "Energiakonsultant", "Energiaprojektide juht", "Energiatootmise spetsialist"] },
+            { name: "Transport", professions: ["Transpordispetsialist", "Transpordikonsultant", "Transpordijuht", "Transpordianalüütik", "Transpordikoordinaator"] },
+            { name: "Turvalisus", professions: ["Turvaspetsialist", "Turvakonsultant", "Turvajuht", "Turvaanalüütik", "Turvakoordinaator"] },
+            { name: "Toitlustus", professions: ["Kokk", "Peakokk", "Toitlustusjuht", "Toitlustuskonsultant", "Toitlustuskoordinaator"] },
+            { name: "Kunst", professions: ["Kunstnik", "Kunstikonsultant", "Kunstiprojektide juht", "Kunstikoordinaator", "Kunstianalüütik"] },
+            { name: "Disain", professions: ["Disainer", "Graafiline disainer", "Moe disainer", "Tootedisainer", "Interjööri disainer"] },
+            { name: "Arhitektuur", professions: ["Arhitekt", "Arhitektuuri konsultant", "Arhitektuuri projektijuht", "Arhitektuuri koordinaator", "Arhitektuuri analüütik"] },
+            { name: "Ehitus", professions: ["Ehitusinsener", "Ehitusjuht", "Ehitusprojektide juht", "Ehituskoordinaator", "Ehitusanalüütik"] },
+            { name: "Haridus", professions: ["Õpetaja", "Õppejõud", "Hariduskonsultant", "Haridusjuht", "Haridusanalüütik"] },
+            { name: "Sotsiaal", professions: ["Sotsiaaltöötaja", "Sotsiaalkonsultant", "Sotsiaalprojektide juht", "Sotsiaalkoordinaator", "Sotsiaalanalüütik"] },
+            { name: "Kultuur", professions: ["Kultuuritöötaja", "Kultuurikonsultant", "Kultuuriprojektide juht", "Kultuurikoordinaator", "Kultuuri analüütik"] },
+            { name: "Sport", professions: ["Treener", "Spordikonsultant", "Spordiprojektide juht", "Spordikoordinaator", "Spordianalüütik"] },
+            { name: "Reisimine", professions: ["Reisikorraldaja", "Reisikonsultant", "Reisiprojektide juht", "Reisikoordinaator", "Reisianalüütik"] },
+            { name: "Mängud", professions: ["Mänguarendaja", "Mängukonsultant", "Mänguprojektide juht", "Mängukoordinaator", "Mänguanalüütik"] },
+            { name: "Teater", professions: ["Näitleja", "Lavastaja", "Teatrikonsultant", "Teatriprojektide juht", "Teatrikoordinaator"] },
+            { name: "Film", professions: ["Filmirežissöör", "Filmikonsultant", "Filmiprojektide juht", "Filmikoordinaator", "Filmi analüütik"] }
+        ];
+
+        const selectedCategories = [];
+
+        function toggleCategory(categoryName) {
+            const index = selectedCategories.indexOf(categoryName);
+            if (index === -1) {
+                selectedCategories.push(categoryName);
+            } else {
+                selectedCategories.splice(index, 1);
+            }
+            renderCategories();
+        }
+
+        function renderCategories() {
+            const categoriesContainer = document.querySelector('.categories');
+            categoriesContainer.innerHTML = '';
+            categories.forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category' + (selectedCategories.includes(category.name) ? ' selected' : '');
+                categoryElement.innerText = category.name;
+                categoryElement.onclick = () => toggleCategory(category.name);
+                categoriesContainer.appendChild(categoryElement);
+            });
+        }
+
+        function showRecommendation() {
+            if (selectedCategories.length < 2) {
+                document.querySelector('.result').innerText = 'Palun vali vähemalt kaks kategooriat!';
+                return;
+            }
+            const recommendations = [];
+            selectedCategories.forEach(categoryName => {
+                const category = categories.find(cat => cat.name === categoryName);
+                const randomProfession = category.professions[Math.floor(Math.random() * category.professions.length)];
+                recommendations.push(randomProfession);
+            });
+            document.querySelector('.result').innerHTML = 'Sinu ametisoovitused:<br>' + recommendations.join('<br>');
+        }
+
+        renderCategories();
+    </script>
+</body>
+</html>
